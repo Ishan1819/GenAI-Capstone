@@ -5,10 +5,10 @@ function Item({ item }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="card">
-      <strong>{item.name}</strong>
+      {item.url ? <a href={item.url} target="_blank" rel="noreferrer"><strong>{item.name}</strong></a> : <strong>{item.name}</strong>}
       <p className="muted small">{item.subtitle}</p>
       <p>{item.explanation}</p>
-      <button className="link" onClick={() => setOpen(!open)}>{open ? "Hide graph evidence" : "Show graph evidence"}</button>
+      <button className="link" onClick={() => setOpen(!open)}>{open ? "Hide reasons" : "Show reasons"}</button>
       {open && <ul className="small">{item.evidence.map((e, i) => <li key={i}>{e}</li>)}</ul>}
     </div>
   );
@@ -68,7 +68,7 @@ export default function Recommend() {
         <div className="grid3">
           <Group title="People to connect with" items={data.peers} />
           <Group title="Upcoming events" items={data.events} />
-          <Group title="Curriculum modules" items={data.modules} />
+          <Group title="Curriculum to focus on" items={data.modules} />
         </div>
       )}
       {data?.notes.map((n, i) => <p className="muted small" key={i}>{n}</p>)}

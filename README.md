@@ -1,34 +1,27 @@
 # ISDIC Community Intelligence Platform
 
 ```
-backend/    FastAPI + ChromaDB + NetworkX knowledge graph + OpenRouter LLM
-frontend/   React (Vite) – chatbot, learning path, resume check, admin
+backend/    FastAPI + ChromaDB (RAG) + local LLM via Ollama (any OpenAI-compatible API also works)
+frontend/   React (Vite) – member portal + admin console at /#/admin
 ```
 
-## Backend setup (from `backend/`, inside your conda env)
+## One-time setup (from `backend/`, inside the conda env)
 
 ```
 pip install -r requirements.txt
-copy .env.example .env          # then set OPENROUTER_API_KEY and ADMIN_TOKEN
-
-python -m scripts.scrape        # 1. crawl isdic.in -> data/raw/pages.jsonl
-python -m scripts.build_kb --skip-graph   # 2a. embed into ChromaDB (no LLM calls) - chatbot already works after this
-python -m scripts.build_kb      # 2b. build the knowledge graph (LLM calls, cached/resumable)
-python -m scripts.generate_demo_data      # 2c. fictional members + events for search & recommendations (no LLM calls)
-uvicorn app.main:app --reload   # 3. API on http://localhost:8000  (docs at /docs)
-python -m scripts.evaluate      # 4. vector-only vs hybrid report -> data/eval/report.md
+copy .env.example .env                    # then set the LLM settings and ADMIN_TOKEN
+python -m scripts.scrape                  # crawl isdic.in -> data/raw/pages.jsonl
+python -m scripts.build_kb                # embed pages into ChromaDB (no LLM, about a minute)
+python -m scripts.generate_demo_data      # fictional members + events for search and recommendations
 ```
 
-Restart the API after rebuilding the graph.
+Everything is saved in `backend/data/`, so these steps are **not** repeated on later days.
 
-## Frontend (from `frontend/`)
+## Every day
 
-```
-npm install
-npm run dev                     # http://localhost:5173
-```
+1. Make sure Ollama is running (tray icon), or `ollama serve`.
+2. Backend: `uvicorn app.main:app --reload` (from `backend/`).
+3. Frontend: `npm run dev` (from `frontend/`), then open http://localhost:5173.
 
-## Notes
-- The OpenRouter free tier is rate limited (and has a low daily request cap unless the account has credit).
-  `LLM_MIN_INTERVAL` spaces calls out; graph extraction batches several chunks per call and caches results.
-- Admin endpoints need the `X-Admin-Token` header (the Admin tab sends it).
+Optional: `python -m scripts.check_llm` checks the LLM; `python -m scripts.evaluate` writes `data/eval/report.md`.
+Re-run `scrape` + `build_kb` only when isdic.in content changes.

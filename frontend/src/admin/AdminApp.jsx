@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
-import { BarChart3, ClipboardList, LogOut, MessageSquareWarning, Network } from "lucide-react";
+import { BarChart3, ClipboardList, LogOut, MessageSquareWarning } from "lucide-react";
 import { adminApi } from "../api.js";
 import Overview from "./Overview.jsx";
 import Queue from "./Queue.jsx";
 import SessionPlanner from "./SessionPlanner.jsx";
-import GraphExplorer from "./GraphExplorer.jsx";
 
 const KEY = "isdic-admin-token";
 const store = {
@@ -16,7 +15,6 @@ const SECTIONS = [
   { to: "/admin", label: "Overview", icon: BarChart3, view: Overview },
   { to: "/admin/questions", label: "Unanswered questions", icon: MessageSquareWarning, view: Queue },
   { to: "/admin/session-planner", label: "Session planner", icon: ClipboardList, view: SessionPlanner },
-  { to: "/admin/graph", label: "Knowledge graph", icon: Network, view: GraphExplorer },
 ];
 
 function Login({ onLogin }) {

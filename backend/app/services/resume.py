@@ -37,8 +37,6 @@ def analyse(text: str) -> dict:
     r = retrieval.retrieve(" ".join(skills + interests) + " ISDIC curriculum domains levels modules", k=8)
     context = (f"RESUME SKILLS: {', '.join(skills)}\nINTERESTS: {', '.join(interests)}\n\n"
                "ISDIC CURRICULUM:\n" + "\n\n".join(c["text"] for c in r["contexts"]))
-    if r["facts"]:
-        context += "\n\nGRAPH FACTS:\n" + "\n".join(f"- {f}" for f in r["facts"][:25])
 
     out = llm.chat_json([{"role": "system", "content": SYSTEM}, {"role": "user", "content": context}])
     out["detected_skills"] = skills

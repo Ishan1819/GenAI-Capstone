@@ -1,4 +1,4 @@
-"""Generate fictional demo members and events, then load them into ChromaDB and the knowledge graph.
+"""Generate fictional demo members and events, then load them into ChromaDB.
 
 Run from backend/:  python -m scripts.generate_demo_data [--members 72] [--seed 42]
 All people and colleges are made up. Re-running replaces the previous demo data.
@@ -10,7 +10,6 @@ from datetime import date, timedelta
 
 from app.core import config
 from app.database import community, vectorstore
-from app.knowledge.graph import KnowledgeGraph
 
 FIRST = ["Aarav", "Vivaan", "Aditya", "Arjun", "Sai", "Reyansh", "Krishna", "Ishaan", "Rohan", "Kabir",
          "Atharva", "Omkar", "Yash", "Pranav", "Siddharth", "Tanmay", "Harsh", "Nikhil", "Varun", "Kunal",
@@ -104,13 +103,7 @@ def main() -> None:
 
     vectorstore.delete_where({"source": {"$in": ["member", "event"]}})
     vectorstore.upsert_chunks(community.to_chunks())
-
-    kg = KnowledgeGraph.load()
-    kg.remove_source(("member-", "event-"))
-    for triple in community.to_triples():
-        kg.add_triple(*triple)
-    kg.save()
-    print("Loaded into ChromaDB and graph:", kg.stats())
+    print(f"Loaded into ChromaDB (now {vectorstore.collection().count()} chunks)")
 
 
 if __name__ == "__main__":

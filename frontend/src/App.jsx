@@ -52,7 +52,7 @@ function Page({ path, params }) {
       );
     case "/for-you":
       return (
-        <Tool eyebrow="Module 3" title="Recommended for you" intro="People, events and modules suggested from the knowledge graph, each with the reason it was picked. Demo mode uses fictional members.">
+        <Tool eyebrow="Module 3" title="Recommended for you" intro="People, events and curriculum suggested from your profile, each with the reason it was picked. Demo mode uses fictional members.">
           <Recommend />
         </Tool>
       );

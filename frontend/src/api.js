@@ -46,8 +46,5 @@ export function adminApi(token) {
     dismiss: (id) => post(`/unanswered/${id}/dismiss`),
     insights: () => get("/insights"),
     sessionPlan: (body) => post("/session-plan", body),
-    graph: (focus = "", types = []) => get(`/graph?focus=${encodeURIComponent(focus)}&types=${types.join(",")}`),
-    node: (id) => get(`/graph/node?id=${encodeURIComponent(id)}`),
-    find: (q) => get(`/graph/find?q=${encodeURIComponent(q)}`),
   };
 }

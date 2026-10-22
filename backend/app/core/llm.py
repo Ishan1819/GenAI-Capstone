@@ -22,7 +22,7 @@ def _get_client() -> OpenAI:
     if _client is None:
         if not config.LLM_API_KEY:
             raise RuntimeError("LLM_API_KEY is not set (copy .env.example to .env)")
-        _client = OpenAI(base_url=config.LLM_BASE_URL, api_key=config.LLM_API_KEY)
+        _client = OpenAI(base_url=config.LLM_BASE_URL, api_key=config.LLM_API_KEY, timeout=config.LLM_TIMEOUT)
     return _client
 
 
@@ -43,18 +43,20 @@ def _retry_after(err: RateLimitError, default: float) -> float:
         return default
 
 
-def chat(messages: list[dict], temperature: float = 0.2, max_tokens: int = 4000, retries: int = 4) -> str:
+def chat(messages: list[dict], temperature: float = 0.2, max_tokens: int = 4000, retries: int = 4,
+         json_mode: bool = False) -> str:
+    params = {"model": config.LLM_MODEL, "messages": messages, "temperature": temperature, "max_tokens": max_tokens}
     # Reasoning models (gpt-oss, etc.) can spend the whole token budget thinking and return no answer;
     # a low reasoning effort keeps room for the reply.
-    extra = {"reasoning_effort": config.LLM_REASONING_EFFORT} if config.LLM_REASONING_EFFORT else None
+    if config.LLM_REASONING_EFFORT:
+        params["extra_body"] = {"reasoning_effort": config.LLM_REASONING_EFFORT}
+    if json_mode and config.LLM_JSON_MODE:
+        params["response_format"] = {"type": "json_object"}
     delay, last_problem = 5.0, "unknown"
     for attempt in range(retries):
         _throttle()
         try:
-            resp = _get_client().chat.completions.create(
-                model=config.LLM_MODEL, messages=messages, temperature=temperature,
-                max_tokens=max_tokens, extra_body=extra,
-            )
+            resp = _get_client().chat.completions.create(**params)
             choice = resp.choices[0]
             text = (choice.message.content or "").strip()
             if text:
@@ -88,7 +90,7 @@ def parse_json(text: str):
 
 def chat_json(messages: list[dict], **kwargs):
     try:
-        return parse_json(chat(messages, **kwargs))
+        return parse_json(chat(messages, json_mode=True, **kwargs))
     except (ValueError, json.JSONDecodeError):
         retry = messages + [{"role": "user", "content": "Your reply was not valid JSON. Reply with only the JSON object."}]
-        return parse_json(chat(retry, **kwargs))
+        return parse_json(chat(retry, json_mode=True, **kwargs))

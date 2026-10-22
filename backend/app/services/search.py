@@ -56,6 +56,8 @@ def parse_llm(query: str) -> dict:
 def understand(query: str) -> dict:
     """LLM parse validated against the vocabulary; keyword parse fills gaps or replaces it on failure."""
     rules = parse_rules(query)
+    if any(rules[f] for f in FIELDS):  # keywords already gave filters: skip the slow LLM call
+        return {**rules, "parser": "rules"}
     try:
         out = parse_llm(query)
     except Exception:

@@ -31,5 +31,3 @@ def recommendations(member_id: str, explain: bool = True):
         return recommend.recommend(member_id, explain=explain)
     except KeyError:
         raise HTTPException(404, "Member not found")
-    except ValueError as e:
-        raise HTTPException(409, str(e))

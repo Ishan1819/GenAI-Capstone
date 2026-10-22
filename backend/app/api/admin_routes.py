@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from app.api.schemas import AnswerRequest, SessionPlanRequest
 from app.core import config
 from app.database import db
-from app.knowledge.graph import get_graph
 from app.services import admin, session_plan
 
 
@@ -57,21 +56,3 @@ def session_plan_endpoint(req: SessionPlanRequest):
         raise HTTPException(503, str(e))
 
 
-@router.get("/graph")
-def graph(focus: str = "", types: str = "", limit: int = 80):
-    kg = get_graph()
-    wanted = {t for t in types.split(",") if t} or None
-    return {**kg.subgraph(focus or None, wanted, min(limit, 200)), "stats": kg.stats()}
-
-
-@router.get("/graph/node")
-def graph_node(id: str):  # query param: node ids can contain "/" (e.g. "ci/cd")
-    detail = get_graph().node_detail(id)
-    if not detail:
-        raise HTTPException(404, "Node not found")
-    return detail
-
-
-@router.get("/graph/find")
-def graph_find(q: str):
-    return get_graph().find(q)

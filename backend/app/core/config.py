@@ -9,8 +9,6 @@ load_dotenv(BASE_DIR / ".env")
 DATA_DIR = BASE_DIR / "data"
 RAW_PAGES = DATA_DIR / "raw" / "pages.jsonl"
 CHROMA_DIR = DATA_DIR / "chroma"
-GRAPH_PATH = DATA_DIR / "graph.json"
-EXTRACTION_CACHE = DATA_DIR / "extraction_cache.json"
 DB_PATH = DATA_DIR / "app.db"
 EVAL_DIR = DATA_DIR / "eval"
 DEMO_DIR = DATA_DIR / "demo"
@@ -25,6 +23,10 @@ LLM_MODEL = os.getenv("LLM_MODEL", "openai/gpt-oss-20b:free")
 LLM_MIN_INTERVAL = float(os.getenv("LLM_MIN_INTERVAL", "3.5"))
 # "low" | "medium" | "high" for reasoning models such as gpt-oss; set empty for providers that reject it
 LLM_REASONING_EFFORT = os.getenv("LLM_REASONING_EFFORT", "low")
+# Ask the server for strict JSON output where we need JSON (Ollama, OpenAI, Groq support it); helps small models
+LLM_JSON_MODE = os.getenv("LLM_JSON_MODE", "false").lower() == "true"
+# Seconds to wait for one reply; local models on a CPU can be slow
+LLM_TIMEOUT = float(os.getenv("LLM_TIMEOUT", "600"))
 EMBED_MODEL = os.getenv("EMBED_MODEL", "all-MiniLM-L6-v2")
 
 MAX_DISTANCE = float(os.getenv("MAX_DISTANCE", "0.65"))

@@ -4,7 +4,6 @@ from fastapi import APIRouter, HTTPException
 
 from app.api.schemas import ChatRequest
 from app.database import vectorstore
-from app.knowledge.graph import get_graph
 from app.rag import chat
 
 router = APIRouter(prefix="/api", tags=["chat"])
@@ -12,7 +11,7 @@ router = APIRouter(prefix="/api", tags=["chat"])
 
 @router.get("/health")
 def health():
-    return {"status": "ok", "chunks": vectorstore.collection().count(), "graph": get_graph().stats()}
+    return {"status": "ok", "chunks": vectorstore.collection().count()}
 
 
 @router.post("/chat")

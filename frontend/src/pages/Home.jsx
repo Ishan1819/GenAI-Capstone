@@ -9,13 +9,13 @@ import { askUrl, go } from "../router.js";
 export const DOMAIN_ICONS = { cyber: Shield, aiml: Brain, cloud: Cloud, dev: Code };
 
 const TOOLS = [
-  { to: "/assistant", icon: Bot, title: "Ask the assistant", text: "Grounded answers from ISDIC's own content, with sources and the knowledge-graph path behind each answer." },
+  { to: "/assistant", icon: Bot, title: "Ask the assistant", text: "Grounded answers from ISDIC's own content, with a source link for every claim." },
   { to: "/search", icon: Search, title: "Community search", text: "“Beginner cyber events in Pune” becomes filters plus a semantic search over members and events." },
   { to: "/path", icon: Route, title: "Learning path", text: "Tell us your goal and what you know; get a roadmap through the curriculum in prerequisite order." },
   { to: "/quiz", icon: ListChecks, title: "Skill quiz", text: "Five questions from your track's curriculum to check if you're ready for the next level." },
   { to: "/projects", icon: Hammer, title: "Project ideas", text: "Portfolio projects that use your track's tools, sized to your level and interests." },
   { to: "/resume", icon: FileText, title: "Resume check", text: "Upload your resume to find your best-fit domain and level, and the skills you still need." },
-  { to: "/for-you", icon: Users, title: "For you", text: "Peers, events and modules recommended from the knowledge graph, each with a reason." },
+  { to: "/for-you", icon: Users, title: "For you", text: "Peers, events and curriculum picked for your profile, each with a reason." },
 ];
 
 const SUGGESTIONS = ["What is ISDIC?", "Is ISDIC free for students?", "How do I join the Pune chapter?", "What does the cloud track cover?"];
@@ -78,7 +78,7 @@ export default function Home() {
           <div className="section-head">
             <p className="eyebrow">AI tools</p>
             <h2>One platform for every member</h2>
-            <p className="lead">Built on a hybrid knowledge graph + vector retrieval backbone over ISDIC's community knowledge.</p>
+            <p className="lead">Built on retrieval-augmented generation (RAG) over ISDIC's own content, with a source for every answer.</p>
           </div>
           <div className="tool-grid">
             {TOOLS.map(({ to, icon: Icon, title, text }) => (

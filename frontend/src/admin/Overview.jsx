@@ -29,8 +29,7 @@ export default function Overview({ api }) {
             <div><b>{data.total_questions}</b><span>questions asked</span></div>
             <div><b>{data.answered_rate == null ? "–" : `${Math.round(data.answered_rate * 100)}%`}</b><span>answered from sources</span></div>
             <div><b>{data.knowledge_gaps.length}</b><span>gap topics</span></div>
-            <div><b>{data.graph.nodes}</b><span>graph entities</span></div>
-            <div><b>{data.graph.edges}</b><span>relationships</span></div>
+            <div><b>{data.kb_chunks}</b><span>knowledge-base chunks</span></div>
           </div>
           {data.narrative && <div className="card narrative"><h3>AI summary</h3>{data.narrative}</div>}
           <div className="admin-two">
@@ -47,10 +46,10 @@ export default function Overview({ api }) {
             </div>
           </div>
           <div className="card">
-            <h3>Demand vs. curriculum coverage</h3>
+            <h3>Questions by domain</h3>
             <table>
-              <thead><tr><th>Domain</th><th>Questions asked</th><th>Modules in curriculum</th></tr></thead>
-              <tbody>{data.domain_demand.map((d) => <tr key={d.domain}><td>{d.domain}</td><td>{d.questions}</td><td>{d.modules}</td></tr>)}</tbody>
+              <thead><tr><th>Domain</th><th>Questions asked</th></tr></thead>
+              <tbody>{data.domain_demand.map((d) => <tr key={d.domain}><td>{d.domain}</td><td>{d.questions}</td></tr>)}</tbody>
             </table>
           </div>
         </>

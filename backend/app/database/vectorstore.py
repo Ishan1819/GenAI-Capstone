@@ -62,6 +62,11 @@ def get_by_ids(ids: list[str]) -> list[dict]:
     return [{"id": i, "text": d, "metadata": m} for i, d, m in zip(res["ids"], res["documents"], res["metadatas"])]
 
 
+def get_where(where: dict) -> list[dict]:
+    res = collection().get(where=where)
+    return [{"id": i, "text": d, "metadata": m} for i, d, m in zip(res["ids"], res["documents"], res["metadatas"])]
+
+
 def sample_chunks(n: int) -> list[dict]:
     import random
 

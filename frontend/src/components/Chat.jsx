@@ -1,19 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { Bot, ChevronDown, ChevronUp, Send } from "lucide-react";
+import { Bot, Send } from "lucide-react";
 import { api } from "../api.js";
-import GraphView from "./GraphView.jsx";
 
 const STARTERS = [
   "What is ISDIC and who is it for?",
   "What are the three skill levels in the AI & ML track?",
-  "Which members in AI and ML are interested in healthcare?",
+  "Is ISDIC free for students and colleges?",
   "What is the flagship event of the cloud community?",
 ];
 
-function Message({ m, onFollowup, compact }) {
-  const [showWhy, setShowWhy] = useState(false);
+function Message({ m, onFollowup }) {
   if (m.role === "user") return <div className="msg user">{m.text}</div>;
-  const hasReasoning = m.reasoning && (m.reasoning.facts.length || m.reasoning.graph.nodes.length);
   return (
     <div className="msg-row">
       <span className="msg-avatar"><Bot size={16} /></span>
@@ -27,19 +24,6 @@ function Message({ m, onFollowup, compact }) {
               </a>
             ))}
           </div>
-        )}
-        {hasReasoning && !compact && (
-          <>
-            <button className="link" onClick={() => setShowWhy(!showWhy)}>
-              {showWhy ? <ChevronUp size={14} /> : <ChevronDown size={14} />} {showWhy ? "Hide reasoning" : "Show reasoning (knowledge graph)"}
-            </button>
-            {showWhy && (
-              <div className="why">
-                <GraphView graph={m.reasoning.graph} />
-                <ul>{m.reasoning.facts.slice(0, 10).map((f, i) => <li key={i}>{f}</li>)}</ul>
-              </div>
-            )}
-          </>
         )}
         {m.followups?.length > 0 && (
           <div className="followups">
@@ -80,7 +64,7 @@ export default function Chat({ initialQuestion = "", compact = false }) {
       const res = await api.chat(text, session.current);
       session.current = res.session_id;
       setMessages((m) => [...m, { role: "bot", text: res.answer, answered: res.answered, sources: res.sources,
-        followups: res.followups, reasoning: res.reasoning }]);
+        followups: res.followups }]);
     } catch (e) {
       setMessages((m) => [...m, { role: "bot", text: `Something went wrong: ${e.message}`, answered: false }]);
     } finally {
@@ -94,13 +78,13 @@ export default function Chat({ initialQuestion = "", compact = false }) {
         {messages.length === 0 && (
           <div className="chat-empty">
             <span className="tool-icon"><Bot size={22} /></span>
-            <p><b>Hi! I'm the ISDIC assistant.</b><br />Ask about domains, curriculum levels, events, chapters or members.</p>
+            <p><b>Hi! I'm the ISDIC assistant.</b><br />Ask about domains, curriculum levels, events, chapters or how to join.</p>
             <div className="chips">
               {STARTERS.slice(0, compact ? 3 : 4).map((s) => <button key={s} className="chip" onClick={() => send(s)}>{s}</button>)}
             </div>
           </div>
         )}
-        {messages.map((m, i) => <Message key={i} m={m} onFollowup={send} compact={compact} />)}
+        {messages.map((m, i) => <Message key={i} m={m} onFollowup={send} />)}
         {busy && (
           <div className="msg-row">
             <span className="msg-avatar"><Bot size={16} /></span>
