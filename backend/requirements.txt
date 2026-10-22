@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+python-multipart
+python-dotenv
+requests
+beautifulsoup4
+lxml
+chromadb
+sentence-transformers
+networkx
+numpy
+openai
+pypdf
