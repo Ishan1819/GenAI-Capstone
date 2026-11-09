@@ -19,11 +19,25 @@ Reply with JSON only:
  "recommended_modules": [{"name": "...", "reason": "..."}], "summary": "2-3 sentences"}"""
 
 
+IMAGE_EXT = (".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".tif", ".tiff", ".heic")
+
+
 def read_text(filename: str, data: bytes) -> str:
-    if filename.lower().endswith(".pdf"):
-        reader = PdfReader(io.BytesIO(data))
-        return "\n".join(page.extract_text() or "" for page in reader.pages)
-    return data.decode("utf-8", errors="ignore")
+    """PDF or plain text. Images and other binary files raise ValueError (HTTP 422)."""
+    name = filename.lower()
+    if name.endswith(IMAGE_EXT) or data[:8].startswith((b"\x89PNG", b"\xff\xd8\xff", b"GIF8", b"BM")):
+        raise ValueError("Images can't be read; upload a text-based PDF or a .txt resume.")
+    if name.endswith(".pdf") or data[:5] == b"%PDF-":
+        try:
+            reader = PdfReader(io.BytesIO(data))
+            return "\n".join(page.extract_text() or "" for page in reader.pages)
+        except Exception as e:
+            raise ValueError(f"Could not read the PDF: {e}")
+    text = data.decode("utf-8", errors="ignore")
+    printable = sum(ch.isprintable() or ch.isspace() for ch in text)
+    if text and printable / len(text) < 0.9:
+        raise ValueError("The file does not look like a text resume.")
+    return text
 
 
 def analyse(text: str) -> dict:

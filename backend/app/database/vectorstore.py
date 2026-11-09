@@ -67,10 +67,11 @@ def get_where(where: dict) -> list[dict]:
     return [{"id": i, "text": d, "metadata": m} for i, d, m in zip(res["ids"], res["documents"], res["metadatas"])]
 
 
-def sample_chunks(n: int) -> list[dict]:
+def sample_chunks(n: int, seed: int | None = None) -> list[dict]:
+    """Random chunks; a fixed seed gives the same sample every run (reproducible evaluation sets)."""
     import random
 
     res = collection().get()
-    rows = list(zip(res["ids"], res["documents"], res["metadatas"]))
-    random.shuffle(rows)
+    rows = sorted(zip(res["ids"], res["documents"], res["metadatas"]), key=lambda r: r[0])
+    random.Random(seed).shuffle(rows)
     return [{"id": i, "text": d, "metadata": m} for i, d, m in rows[:n]]

@@ -10,3 +10,7 @@ sentence-transformers
 numpy
 openai
 pypdf
+
+# tests
+pytest
+httpx

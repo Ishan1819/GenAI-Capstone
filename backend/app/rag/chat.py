@@ -1,7 +1,8 @@
 """Core chatbot: query condensing, RAG retrieval, grounded generation, guardrail."""
 import re
+import time
 
-from app.core import llm
+from app.core import config, llm
 from app.database import db
 from app.rag import retrieval
 
@@ -82,13 +83,31 @@ def generate(question: str, r: dict, history: list[dict] | None = None) -> dict:
             "followups": [str(f) for f in out.get("followups", [])][:3]}
 
 
-def answer(session_id: str, message: str) -> dict:
+def retrieve_for(question: str) -> dict:
+    """Eq. (2): a member/event question with domain, chapter, level or date constraints gets the metadata filter;
+    everything else uses the default retrieval (k = CHAT_K, member profiles left out)."""
+    f = retrieval.filters_for(question)
+    if f:
+        r = retrieval.filtered_retrieve(question, f)
+        if r["sufficient"]:
+            return r
+    return retrieval.retrieve(question, k=config.CHAT_K)  # fewer chunks = shorter prompt = much faster on a CPU
+
+
+def answer(session_id: str, message: str, trace: dict | None = None, retriever=None) -> dict:
+    """Full chatbot pipeline. Pass a dict as `trace` to receive the standalone question, the retrieved contexts
+    and the generation time (used by scripts/evaluate.py); `retriever` overrides retrieve_for (experiments)."""
     history = _sessions.setdefault(session_id, [])
     standalone = condense(message, history)
-    r = retrieval.retrieve(standalone, k=4)  # fewer chunks = shorter prompt = much faster on a CPU
+    r = (retriever or retrieve_for)(standalone)
 
-    gen = generate(standalone, r, history) if r["sufficient"] else None
+    t0 = time.perf_counter()
+    gen = generate(standalone, r, history) if r["sufficient"] else None  # no context -> refuse, LLM not called
+    gen_seconds = time.perf_counter() - t0 if gen else None
     ok = bool(gen and gen["answered"])
+    if trace is not None:
+        trace.update({"standalone": standalone, "retrieval": r, "gen_seconds": gen_seconds,
+                      "raw_answer": gen["answer"] if gen else "", "llm_called": gen is not None})
 
     db.log_interaction(session_id, message, standalone, ok, r["best_distance"])
     if not ok:

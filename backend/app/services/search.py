@@ -71,7 +71,7 @@ def understand(query: str) -> dict:
     return parsed
 
 
-def _where(f: dict) -> dict | None:
+def build_where(f: dict) -> dict | None:
     conds = []
     if f.get("entity_type") == "page":
         conds.append({"source": {"$in": ["web", "faq"]}})
@@ -110,7 +110,7 @@ def search(query: str, overrides: dict | None = None, k: int = 10, use_llm: bool
             f[key] = val
 
     text = f["semantic_query"] or query or " ".join(str(f[x]) for x in FIELDS if f.get(x)) or "ISDIC community"
-    hits = vectorstore.search(text, k=k, where=_where(f))
+    hits = vectorstore.search(text, k=k, where=build_where(f))
     results = []
     for h in hits:
         m = h["metadata"]
